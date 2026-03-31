@@ -50,6 +50,34 @@ import { useReInviteGroupMemberMutation } from "../features/group/groupApiSlice"
 
 const { Text } = Typography;
 
+// Add the GroupStatusEnum mapping
+const GROUP_STATUS = {
+  0: "Pending",
+  1: "Active",
+  2: "Inactive",
+};
+
+// Add status colors for group statuses
+const GROUP_STATUS_COLORS = {
+  0: "gold", // Pending - yellow/gold
+  1: "green", // Active - green
+  2: "default", // Inactive - gray
+};
+
+// Add status icons for group statuses
+const getGroupStatusIcon = (status) => {
+  switch (status) {
+    case 1: // Active
+      return <CheckCircleOutlined className="text-green-500" />;
+    case 0: // Pending
+      return <ClockCircleOutlined className="text-yellow-500" />;
+    case 2: // Inactive
+      return <StopOutlined className="text-gray-500" />;
+    default:
+      return null;
+  }
+};
+
 const ViewGroup = () => {
   const currentUser = useSelector(selectCurrentUser);
   const userId = currentUser?.id;
@@ -955,9 +983,17 @@ const ViewGroup = () => {
                       <Text strong className="text-lg">
                         {group.groupName}
                       </Text>
-                      <Tag color="orange" className="rounded-full px-3">
-                        {new Date(group.createdAt).toLocaleDateString()}
-                      </Tag>
+                      <div className="flex items-center space-x-2">
+                        <Tag
+                          color={GROUP_STATUS_COLORS[group.status ?? 1]}
+                          icon={getGroupStatusIcon(group.status ?? 1)}
+                        >
+                          {GROUP_STATUS[group.status ?? 1]}
+                        </Tag>
+                        <Tag color="orange" className="rounded-full px-3">
+                          {new Date(group.createdAt).toLocaleDateString()}
+                        </Tag>
+                      </div>
                     </div>
                   }
                   actions={[
@@ -1109,6 +1145,14 @@ const ViewGroup = () => {
               <Text strong className="text-xl">
                 {selectedGroup ? selectedGroup.groupName : "Group Details"}
               </Text>
+              {selectedGroup && (
+                <Tag
+                  color={GROUP_STATUS_COLORS[selectedGroup.status ?? 1]}
+                  icon={getGroupStatusIcon(selectedGroup.status ?? 1)}
+                >
+                  {GROUP_STATUS[selectedGroup.status ?? 1]}
+                </Tag>
+              )}
             </div>
           }
           open={isModalVisible}
@@ -1140,6 +1184,14 @@ const ViewGroup = () => {
                       color={selectedGroup.groupType === 1 ? "purple" : "blue"}
                     >
                       {selectedGroup.groupTypeString}
+                    </Tag>
+                  </Descriptions.Item>
+                  <Descriptions.Item label={<Text strong>Status</Text>}>
+                    <Tag
+                      color={GROUP_STATUS_COLORS[selectedGroup.status ?? 1]}
+                      icon={getGroupStatusIcon(selectedGroup.status ?? 1)}
+                    >
+                      {GROUP_STATUS[selectedGroup.status ?? 1]}
                     </Tag>
                   </Descriptions.Item>
                   <Descriptions.Item label={<Text strong>Members</Text>}>
